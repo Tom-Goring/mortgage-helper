@@ -7,14 +7,19 @@ interface CardProps {
   removeFromSeries: () => void;
 }
 
-export const Card = (props: CardProps) => {
-  const PV = props.data.housePrice - props.data.deposit;
+const convertCurrencyStringToNum = (input: string): number =>
+  Number(input.replace(/[^0-9.]+/g, ''));
 
-  const APR = props.data.rate / 100;
+export const Card = (props: CardProps) => {
+  const PV =
+    convertCurrencyStringToNum(props.data.housePrice) -
+    convertCurrencyStringToNum(props.data.deposit);
+
+  const APR = Number(props.data.rate) / 100;
 
   const R = APR / 12;
 
-  const n = 12 * props.data.termLength;
+  const n = 12 * Number(props.data.termLength);
 
   const PMT = (PV * R) / (1 - Math.pow(1 + R, -n));
 
@@ -23,12 +28,10 @@ export const Card = (props: CardProps) => {
   const i = R;
 
   const timeToPayOffMonths = -(
-    Math.log(1 - (PV * i) / (PMT + props.data.overpayment)) / Math.log(1 + i)
+    Math.log(1 - (PV * i) / (PMT + Number(props.data.overpayment))) / Math.log(1 + i)
   );
 
   const timeToPayOffYears = timeToPayOffMonths / 12;
-
-  console.log(timeToPayOffYears);
 
   const GBP = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'GBP' });
   return (
@@ -45,9 +48,9 @@ export const Card = (props: CardProps) => {
         </div>
         <div className="px-6 py-4 grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
           <span>House Price: </span>
-          <span>{GBP.format(props.data.housePrice)}</span>
+          <span>{GBP.format(convertCurrencyStringToNum(props.data.housePrice))}</span>
           <span>Deposit: </span>
-          <span>{GBP.format(props.data.deposit)}</span>
+          <span>{GBP.format(convertCurrencyStringToNum(props.data.deposit))}</span>
           <span>Mortgage: </span>
           <span>{GBP.format(PV)}</span>
           <span>Rate: </span>
